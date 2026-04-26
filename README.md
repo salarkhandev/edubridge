@@ -1,4 +1,4 @@
-# EduBridge 📚
+# EduBridge 
 ### AI Tutor powered by Gemma 4 + Ollama — Works 100% Offline
 
 EduBridge is an offline-first AI tutoring platform built for students 
