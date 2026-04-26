@@ -1,5 +1,6 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from pydantic import BaseModel
 import ollama
 import os
@@ -20,22 +21,22 @@ rag = RAGPipeline()
 class ChatRequest(BaseModel):
     message: str
 
+@app.middleware("http")
+async def add_ngrok_header(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["ngrok-skip-browser-warning"] = "true"
+    return response
+
 @app.post("/chat")
 async def chat(request: ChatRequest):
-    # RAG se relevant context dhoondhao
     context = rag.search(request.message)
-    
-    # System prompt with or without context
     if context:
         system_prompt = f"""You are EduBridge, a helpful AI tutor for students worldwide.
         Use the following context from uploaded documents to answer the question.
-        If context is relevant, use it. Otherwise use your own knowledge.
         Always respond in English only.
         Give SHORT, clear answers in maximum 4-5 sentences.
         Be friendly and encouraging.
-        
-        Context from documents:
-        {context}"""
+        Context: {context}"""
     else:
         system_prompt = """You are EduBridge, a helpful AI tutor for students worldwide.
         Give SHORT, clear answers in maximum 4-5 sentences.
@@ -49,7 +50,6 @@ async def chat(request: ChatRequest):
             {"role": "user", "content": request.message}
         ]
     )
-    
     return {
         "answer": response.message.content,
         "used_rag": bool(context)
@@ -59,14 +59,11 @@ async def chat(request: ChatRequest):
 async def upload_document(file: UploadFile = File(...)):
     os.makedirs("./documents", exist_ok=True)
     file_path = f"./documents/{file.filename}"
-    
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-    
     chunks = rag.ingest(file_path, file.filename)
-    
     return {
-        "message": f"Document uploaded successfully!",
+        "message": "Document uploaded successfully!",
         "filename": file.filename,
         "chunks_indexed": chunks
     }

@@ -70,7 +70,10 @@ export default function EduBridge() {
     try {
       const res = await fetch("https://eaten-counting-unrushed.ngrok-free.dev/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+  "Content-Type": "application/json",
+  "ngrok-skip-browser-warning": "true"
+},
         body: JSON.stringify({ message: msg })
       });
       const data = await res.json();
@@ -99,6 +102,9 @@ export default function EduBridge() {
     try {
       const res = await fetch("https://eaten-counting-unrushed.ngrok-free.dev/upload", {
         method: "POST",
+        headers: {
+          "ngrok-skip-browser-warning": "true"
+        },
         body: formData
       });
       const data = await res.json();
