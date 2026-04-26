@@ -68,7 +68,7 @@ export default function EduBridge() {
     setInput("");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/chat", {
+      const res = await fetch("https://eaten-counting-unrushed.ngrok-free.dev/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: msg })
@@ -97,7 +97,7 @@ export default function EduBridge() {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      const res = await fetch("http://localhost:8000/upload", {
+      const res = await fetch("https://eaten-counting-unrushed.ngrok-free.dev/upload", {
         method: "POST",
         body: formData
       });
